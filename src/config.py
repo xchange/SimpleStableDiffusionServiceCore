@@ -8,6 +8,7 @@ from pytz import timezone
 APP_ROOT = Path(__file__).parent.parent.resolve()
 APP_DB = APP_ROOT / 'db' / 'core.db'
 APP_IMAGES_ROOT = APP_ROOT / 'images'
+APP_STATIC_ROOT = APP_ROOT / 'static'
 
 CFG_TIMEZONE = timezone('Asia/Shanghai')
 CFG_DB_ECHO = True
