@@ -82,6 +82,32 @@ class CreateTask:
         }
 
 
+class CheckTaskStatus:
+    async def on_get(self, req: Request, resp: Response):
+        task_id = req.get_param('id', required=False, default='').strip()
+        task_id = valid_int(task_id, 0, 0, 4294967295)
+        if task_id == 0:
+            raise HTTPBadRequest
+
+        q = select(SDTask).filter_by(id=task_id)
+        result = await req.context.session.execute(q)
+        task = result.scalars().first()
+        if not task:
+            logger.info('Task not found: {}', task_id)
+        resp.media = {
+            'code': 0,
+            'msg': 'OK',
+            'data': {
+                'status': task.status,
+                'success': -1,
+                'images': [],
+            }
+        }
+        if task.status == 2:
+            resp.media['data']['success'] = task.success
+            resp.media['data']['images'] = task.images.split(',')
+
+
 class ListTask:
     async def on_get(self, req: Request, resp: Response):
         page = req.get_param('page', required=False, default='').strip()

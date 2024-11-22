@@ -6,7 +6,7 @@ from api.middleware import handle_uncaught_exceptions, SimpleSDCoreAPIMiddleware
 from api.image import Image
 from api.info import AppInfo, CreateSDModel
 from api.static import Static
-from api.task import CreateTask, ListTask
+from api.task import CreateTask, CheckTaskStatus, ListTask
 from config import HTTP_HOST, HTTP_PORT
 from config import logger
 
@@ -20,6 +20,7 @@ def main():
     app.add_route('/ssdscore/app/info', AppInfo())
     app.add_route('/ssdscore/model/create', CreateSDModel())
     app.add_route('/ssdscore/task/create', CreateTask())
+    app.add_route('/ssdscore/task/status', CheckTaskStatus())
     app.add_route('/ssdscore/task/list', ListTask())
     app.add_route('/ssdscore/image/{file_dir}/{file_name}', Image())
     app.add_route('/ssdscore/static/{file_path:path}', Static())
