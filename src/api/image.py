@@ -2,9 +2,10 @@ import regex
 
 import aiofiles
 from falcon import Request, Response
-from falcon.errors import HTTPBadRequest
+from falcon.errors import HTTPBadRequest, HTTPInternalServerError
 
 from config import APP_IMAGES_ROOT
+from config import logger
 
 
 class Image:
@@ -19,7 +20,11 @@ class Image:
             raise HTTPBadRequest
 
         file_path = str(APP_IMAGES_ROOT / file_dir / file_name)
-        async with aiofiles.open(file_path, mode='rb') as file:
-            content = await file.read()
-        resp.content_type = 'image/png'
-        resp.data = content
+        try:
+            async with aiofiles.open(file_path, mode='rb') as file:
+                content = await file.read()
+            resp.content_type = 'image/png'
+            resp.data = content
+        except:
+            logger.error('Read file error: {}', file_path)
+            raise HTTPInternalServerError
