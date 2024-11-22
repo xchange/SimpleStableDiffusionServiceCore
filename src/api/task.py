@@ -1,12 +1,10 @@
-from pprint import pprint
-
 from falcon import Request, Response
 from falcon.errors import HTTPBadRequest, HTTPInternalServerError
 from sqlalchemy.future import select
 
 from config import logger
 from data.db import SDModel, SDScheduler, SDTask
-from library.datetime import now
+from library.datetime import date_format, now
 from library.utils import json_loads, valid_int, valid_float
 
 
@@ -15,7 +13,6 @@ class CreateTask:
         payload = await req.bounded_stream.read()
         logger.info(f'Request payload: {payload}')
         data = json_loads(payload)
-        pprint(data)
         try:
             assert data
             assert isinstance(data, dict)
@@ -82,4 +79,45 @@ class CreateTask:
             'data': {
                 'task_id': record.id,
             }
+        }
+
+
+class ListTask:
+    async def on_get(self, req: Request, resp: Response):
+        page = req.get_param('page', required=False, default='').strip()
+        page = valid_int(page, 1, 1, 20)
+        size = req.get_param('size', required=False, default='').strip()
+        size = valid_int(size, 10, 1, 100)
+        offset = (page - 1) * size
+
+        q = select(SDTask).filter_by(status=2).order_by(SDTask.ended_at.desc()).limit(size).offset(offset)
+        result = await req.context.session.execute(q)
+        records = result.scalars().all()
+        tasks = []
+        for record in records:
+            tasks.append({
+                'id': record.id,
+                'model': record.model,
+                'scheduler': record.scheduler,
+                'prompt': record.prompt,
+                'negative_prompt': record.negative_prompt,
+                'width': record.width,
+                'height': record.height,
+                'size': record.size,
+                'steps': record.steps,
+                'scale': record.scale,
+                'seed': record.seed,
+                'created_at': date_format(record.created_at),
+                'started_at': date_format(record.started_at),
+                'ended_at': date_format(record.ended_at),
+                'duration': record.duration,
+                'success': record.success,
+                'images': record.images.split(','),
+            })
+        resp.media = {
+            'code': 0,
+            'msg': 'OK',
+            'data': {
+                'tasks': tasks,
+            },
         }

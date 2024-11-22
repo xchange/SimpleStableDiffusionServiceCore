@@ -113,7 +113,7 @@ def worker(queue: Queue, model_id: int, model_name: str, model_type: int, model_
         ended_at = now()
         new_task.status = 2
         new_task.ended_at = ended_at
-        new_task.duration = (ended_at - started_at).total_seconds() * 1000
+        new_task.duration = round((ended_at - started_at).total_seconds() * 1000)
         if success:
             new_task.success = 1
             new_task.images = ','.join(images)

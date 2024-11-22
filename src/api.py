@@ -3,7 +3,7 @@ import uvicorn
 
 from api.middleware import handle_uncaught_exceptions, SimpleSDCoreAPIMiddleware
 from api.info import AppInfo, CreateSDModel
-from api.task import CreateTask
+from api.task import CreateTask, ListTask
 from config import HTTP_HOST, HTTP_PORT
 from config import logger
 
@@ -15,6 +15,7 @@ def main():
     app.add_route('/ssdcore/app/info', AppInfo())
     app.add_route('/ssdcore/model/create', CreateSDModel())
     app.add_route('/ssdcore/task/create', CreateTask())
+    app.add_route('/ssdcore/task/list', ListTask())
     app.add_error_handler(Exception, handle_uncaught_exceptions)
 
     logger.info('Application ready.')
