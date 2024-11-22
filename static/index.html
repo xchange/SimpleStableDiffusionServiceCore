@@ -15,7 +15,7 @@
         <div class="row">
             <!-- 左侧表单 -->
             <aside class="col-md-3">
-                <form>
+                <form id="aiForm">
                     <div class="mb-3">
                         <label for="modelSelect" class="form-label">模型</label>
                         <select class="mode" id="modelSelect">
@@ -58,14 +58,16 @@
                         <label for="randomSeed" class="form-label">随机数种子</label>
                         <input type="number" class="form-control" id="randomSeed" value="-1">
                     </div>
-                    <button type="submit" class="btn btn-primary">运行</button>
+                    <button type="submit" class="btn btn-primary" id="runButton">运行</button>
                 </form>
             </aside>
             <!-- 右侧图片展示区 -->
             <main class="col-md-9">
-                <div id="imageDisplayArea" class="border p-3">
-                    <!-- 图片将在这里显示 -->
-                    <p>图片将在提交后显示在此处。</p>
+                <div class="border p-3 d-flex justify-content-center align-items-center">
+                    <div id="imageDisplayArea" class="justify-content-center align-items-center">
+                        <!-- 图片将在这里显示 -->
+                        <p id="statusMessage">图片将在提交后显示在此处。</p>
+                    </div>
                 </div>
             </main>
         </div>
@@ -73,6 +75,7 @@
     <script src="/ssdscore/static/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
+            // 初始化表单
             $.ajax({
                 url: '/ssdscore/app/info', // 替换为实际的API地址
                 method: 'GET',
@@ -93,6 +96,111 @@
                 },
                 error: function() {
                     alert('请求模型选项失败');
+                }
+            });
+
+            // 阻止表单的默认提交行为
+            $('#aiForm').submit(function(event) {
+                event.preventDefault(); // 阻止表单的默认提交行为
+            });
+
+            // 运行按钮点击事件
+            $('#runButton').click(function(event) {
+                event.preventDefault(); // 阻止表单的默认提交行为
+
+                // 获取表单数据并进行类型转换
+                var formData = {
+                    model: parseInt($('#modelSelect').val()), // 转换为整数
+                    scheduler: parseInt($('#schedulerSelect').val()), // 转换为整数
+                    prompt: $('#promptText').val(),
+                    negative_prompt: $('#negativePromptText').val(),
+                    width: parseInt($('#imageWidth').val()), // 转换为整数
+                    height: parseInt($('#imageHeight').val()), // 转换为整数
+                    steps: parseInt($('#iterationCount').val()), // 转换为整数
+                    scale: parseFloat($('#guidanceWeight').val()), // 转换为浮点数
+                    size: parseInt($('#imageCount').val()), // 转换为整数
+                    seed: parseInt($('#randomSeed').val()) // 转换为整数
+                };
+
+                // 禁用运行按钮
+                $('#runButton').prop('disabled', true);
+
+                // 发送POST请求
+                $.ajax({
+                    url: '/ssdscore/task/create', // 替换为实际的API地址
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(createResponse) {
+                        if (createResponse.code != 0) {
+                            // 处理错误响应
+                            alert('请求失败，请重试。code=' + createResponse.code);
+                            // 重新启用运行按钮
+                            $('#runButton').prop('disabled', false);
+                        } else {
+                            var taskId = createResponse.data.task_id;
+                            $('#runButton').prop('disabled', false);
+                            $('#imageDisplayArea').empty();
+                            var statusMessage = $('<p>').text('AI生成中……');
+                            $('#imageDisplayArea').append(statusMessage);
+                            var checkStatusInterval = setInterval(function() {
+                                $.ajax({
+                                    url: '/ssdscore/task/status?id=' + taskId, // 替换为实际的API地址
+                                    method: 'GET',
+                                    success: function(statusResponse) {
+                                        console.log(statusResponse.code);
+                                        console.log(statusResponse.data.status);
+                                        if (statusResponse.code === 0 && statusResponse.data.status === 2) {
+                                            // 任务已完成
+                                            clearInterval(checkStatusInterval); // 停止查询
+                                            $('#runButton').prop('disabled', false); // 重新启用运行按钮
+                                            // 显示图片
+                                            displayImages(statusResponse.data.images);
+                                        } else {
+                                        }
+                                    },
+                                    error: function() {
+                                        alert('查询任务状态失败');
+                                        clearInterval(checkStatusInterval); // 停止查询
+                                        $('#runButton').prop('disabled', false); // 重新启用运行按钮
+                                    }
+                                });
+                            }, 1000); // 每秒查询一次
+                        }
+                    },
+                    error: function() {
+                        // 处理错误响应
+                        alert('请求失败，请重试。');
+                        // 重新启用运行按钮
+                        $('#runButton').prop('disabled', false);
+                    }
+                });
+
+                function displayImages(images) {
+                    $('#imageDisplayArea').empty();
+                    // 计算网格布局
+                    var imageCount = images.length;
+                    var rowCount = Math.ceil(Math.sqrt(imageCount));
+                    var colCount = Math.ceil(imageCount / rowCount);
+
+                    for (var i = 0; i < imageCount; i++) {
+                        //var img = $('<img>').attr('src', '/ssdscore/images/' + images[i]).css({
+                        //    'max-width': '100%',
+                        //    'height': 'auto',
+                        //    'display': 'block'
+                        //});
+                        var img = $('<img>').attr('src', '/ssdscore/images/' + images[i]).addClass('img-fluid');
+                        var div = $('<div>');
+                        div.append(img);
+                        $('#imageDisplayArea').append(div);
+                    }
+
+                    // 设置图片容器的样式
+                    $('#imageDisplayArea').css({
+                        'display': 'grid',
+                        'grid-template-columns': 'repeat(' + colCount + ', 1fr)',
+                        'grid-gap': '10px'
+                    });
                 }
             });
         });

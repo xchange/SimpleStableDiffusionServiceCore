@@ -22,7 +22,7 @@ def main():
     app.add_route('/ssdscore/task/create', CreateTask())
     app.add_route('/ssdscore/task/status', CheckTaskStatus())
     app.add_route('/ssdscore/task/list', ListTask())
-    app.add_route('/ssdscore/image/{file_dir}/{file_name}', Image())
+    app.add_route('/ssdscore/images/{file_dir}/{file_name}', Image())
     app.add_route('/ssdscore/static/{file_path:path}', Static())
     app.add_error_handler(Exception, handle_uncaught_exceptions)
 
