@@ -13,63 +13,103 @@
             <h1 class="text-center">AI图片生成</h1>
         </header>
         <div class="row">
-            <!-- 左侧表单 -->
-            <aside class="col-md-3">
-                <form id="aiForm">
-                    <div class="mb-3">
-                        <label for="modelSelect" class="form-label">模型</label>
-                        <select class="mode" id="modelSelect">
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="promptText" class="form-label">提示词</label>
-                        <textarea class="form-control" id="promptText" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="negativePromptText" class="form-label">反向提示词</label>
-                        <textarea class="form-control" id="negativePromptText" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="imageWidth" class="form-label">图像宽度</label>
-                        <input type="number" class="form-control" id="imageWidth" value="1024">
-                    </div>
-                    <div class="mb-3">
-                        <label for="imageHeight" class="form-label">图像高度</label>
-                        <input type="number" class="form-control" id="imageHeight" value="768">
-                    </div>
-                    <div class="mb-3">
-                        <label for="schedulerSelect" class="form-label">调度器</label>
-                        <select class="form-select" id="schedulerSelect">
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="iterationCount" class="form-label">迭代次数</label>
-                        <input type="number" class="form-control" id="iterationCount" value="30">
-                    </div>
-                    <div class="mb-3">
-                        <label for="guidanceWeight" class="form-label">指导权重</label>
-                        <input type="number" class="form-control" id="guidanceWeight" value="7.0">
-                    </div>
-                    <div class="mb-3">
-                        <label for="imageCount" class="form-label">图片数量</label>
-                        <input type="number" class="form-control" id="imageCount" value="1">
-                    </div>
-                    <div class="mb-3">
-                        <label for="randomSeed" class="form-label">随机数种子</label>
-                        <input type="number" class="form-control" id="randomSeed" value="-1">
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="runButton">运行</button>
-                </form>
-            </aside>
-            <!-- 右侧图片展示区 -->
-            <main class="col-md-9">
-                <div class="border p-3 d-flex justify-content-center align-items-center">
-                    <div id="imageDisplayArea" class="justify-content-center align-items-center">
-                        <!-- 图片将在这里显示 -->
-                        <p id="statusMessage">图片将在提交后显示在此处。</p>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="generate-tab" data-bs-toggle="tab" data-bs-target="#generate" type="button" role="tab" aria-controls="generate" aria-selected="true">生成图片</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">历史记录</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="generate" role="tabpanel" aria-labelledby="generate-tab">
+                    <div class="row">
+                        <!-- 左侧表单 -->
+                        <aside class="col-md-3" style="padding-top: 1em;">
+                            <form id="aiForm">
+                                <div class="mb-3">
+                                    <label for="modelSelect" class="form-label">模型</label>
+                                    <select class="mode" id="modelSelect">
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="promptText" class="form-label">提示词</label>
+                                    <textarea class="form-control" id="promptText" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="negativePromptText" class="form-label">反向提示词</label>
+                                    <textarea class="form-control" id="negativePromptText" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imageWidth" class="form-label">图像宽度</label>
+                                    <input type="number" class="form-control" id="imageWidth" value="1024">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imageHeight" class="form-label">图像高度</label>
+                                    <input type="number" class="form-control" id="imageHeight" value="768">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="schedulerSelect" class="form-label">调度器</label>
+                                    <select class="form-select" id="schedulerSelect">
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="iterationCount" class="form-label">迭代次数</label>
+                                    <input type="number" class="form-control" id="iterationCount" value="30">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="guidanceWeight" class="form-label">指导权重</label>
+                                    <input type="number" class="form-control" id="guidanceWeight" value="7.0">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imageCount" class="form-label">图片数量</label>
+                                    <input type="number" class="form-control" id="imageCount" value="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="randomSeed" class="form-label">随机数种子</label>
+                                    <input type="number" class="form-control" id="randomSeed" value="-1">
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="runButton">运行</button>
+                            </form>
+                        </aside>
+                        <!-- 右侧图片展示区 -->
+                        <main class="col-md-9" style="padding-top: 1em;">
+                            <div class="border p-3 d-flex justify-content-center align-items-center">
+                                <div id="imageDisplayArea" class="justify-content-center align-items-center">
+                                    <!-- 图片将在这里显示 -->
+                                    <p id="statusMessage">图片将在提交后显示在此处。</p>
+                                </div>
+                            </div>
+                        </main>
                     </div>
                 </div>
-            </main>
+                <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 5em;">任务ID</th>
+                                    <th style="min-width: 5em;">模型</th>
+                                    <th style="min-width: 5em;">调度器</th>
+                                    <th>提示词</th>
+                                    <th>反向提示词</th>
+                                    <th style="min-width: 3em;">数量</th>
+                                    <th style="min-width: 6em;">生成时间</th>
+                                    <th style="min-width: 5em;">生成结果</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination" id="pagination">
+                            <li class="page-item" id="prevPage"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item" id="nextPage"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
     </div>
     <script src="/ssdscore/static/js/bootstrap.bundle.min.js"></script>
@@ -175,33 +215,110 @@
                         $('#runButton').prop('disabled', false);
                     }
                 });
+            });
 
-                function displayImages(images) {
-                    $('#imageDisplayArea').empty();
-                    // 计算网格布局
-                    var imageCount = images.length;
-                    var rowCount = Math.ceil(Math.sqrt(imageCount));
-                    var colCount = Math.ceil(imageCount / rowCount);
+            function displayImages(images) {
+                $('#imageDisplayArea').empty();
+                // 计算网格布局
+                var imageCount = images.length;
+                var rowCount = Math.ceil(Math.sqrt(imageCount));
+                var colCount = Math.ceil(imageCount / rowCount);
 
-                    for (var i = 0; i < imageCount; i++) {
-                        //var img = $('<img>').attr('src', '/ssdscore/images/' + images[i]).css({
-                        //    'max-width': '100%',
-                        //    'height': 'auto',
-                        //    'display': 'block'
-                        //});
-                        var img = $('<img>').attr('src', '/ssdscore/images/' + images[i]).addClass('img-fluid');
-                        var div = $('<div>');
-                        div.append(img);
-                        $('#imageDisplayArea').append(div);
-                    }
-
-                    // 设置图片容器的样式
-                    $('#imageDisplayArea').css({
-                        'display': 'grid',
-                        'grid-template-columns': 'repeat(' + colCount + ', 1fr)',
-                        'grid-gap': '10px'
-                    });
+                for (var i = 0; i < imageCount; i++) {
+                    //var img = $('<img>').attr('src', '/ssdscore/images/' + images[i]).css({
+                    //    'max-width': '100%',
+                    //    'height': 'auto',
+                    //    'display': 'block'
+                    //});
+                    var img = $('<img>').attr('src', '/ssdscore/images/' + images[i]).addClass('img-fluid');
+                    var div = $('<div>');
+                    div.append(img);
+                    $('#imageDisplayArea').append(div);
                 }
+
+                // 设置图片容器的样式
+                $('#imageDisplayArea').css({
+                    'display': 'grid',
+                    'grid-template-columns': 'repeat(' + colCount + ', 1fr)',
+                    'grid-gap': '10px'
+                });
+            }
+
+            var currentPage = 1;
+            const itemsPerPage = 10;
+
+            function fetchHistory(page) {
+                $.ajax({
+                    url: '/ssdscore/task/list?page=' + page + '&size=' + itemsPerPage, // 替换为实际的API地址
+                    method: 'GET',
+                    success: function(data) {
+                        displayHistory(data);
+                    },
+                    error: function() {
+                        alert('获取历史记录失败');
+                    }
+                });
+            }
+
+            function displayHistory(data) {
+                var historyTableBody = $('#historyTableBody');
+                historyTableBody.empty();
+
+                data.data.tasks.forEach(function(item) {
+                    var row = '<tr>' +
+                        '<td>' + item.id + '</td>' +
+                        '<td>' + item.model + '</td>' +
+                        '<td>' + item.scheduler + '</td>' +
+                        '<td>' + item.prompt + '</td>' +
+                        '<td>' + item.negative_prompt + '</td>' +
+                        '<td>' + item.size + '</td>' +
+                        '<td>' + item.created_at + '</td>' +
+                        '<td><a href="#" class="view-images" data-task-id="' + item.id + '">查看图片</a></td>' +
+                        '</tr>';
+                    historyTableBody.append(row);
+                });
+
+                // 分页按钮控制
+                $('#prevPage').toggleClass('disabled', data.currentPage <= 1);
+                $('#nextPage').toggleClass('disabled', data.currentPage >= data.data.pages);
+
+                // 绑定查看图片事件
+                $('.view-images').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    var taskId = $(this).data('task-id');
+                    viewTaskImages(taskId);
+                });
+            }
+
+            function viewTaskImages(taskId) {
+                $.ajax({
+                    url: '/ssdscore/task/status?id=' + taskId, // 替换为实际的API地址
+                    method: 'GET',
+                    success: function(data) {
+                        displayImages(data.data.images);
+                        $('#generate-tab').tab('show'); // 切换回生成图片Tab
+                    },
+                    error: function() {
+                        alert('获取任务图片失败');
+                    }
+                });
+            }
+
+            // 初始化历史记录
+            fetchHistory(currentPage);
+
+            // 上一页按钮点击事件
+            $('#prevPage').on('click', function() {
+                if ($(this).hasClass('disabled')) return;
+                currentPage--;
+                fetchHistory(currentPage);
+            });
+
+            // 下一页按钮点击事件
+            $('#nextPage').on('click', function() {
+                if ($(this).hasClass('disabled')) return;
+                currentPage++;
+                fetchHistory(currentPage);
             });
         });
     </script>

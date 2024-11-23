@@ -1,6 +1,9 @@
+import math
+
 from falcon import Request, Response
 from falcon.errors import HTTPBadRequest, HTTPInternalServerError
 from sqlalchemy.future import select
+from sqlalchemy.sql.functions import func
 
 from config import logger
 from data.db import SDModel, SDScheduler, SDTask
@@ -140,10 +143,17 @@ class ListTask:
                 'success': record.success,
                 'images': record.images.split(','),
             })
+
+        q = select(func.count()).select_from(SDTask).filter_by(status=2)
+        result = await req.context.session.execute(q)
+        count = result.scalar()
+        total_pages = math.ceil(count / size)
+
         resp.media = {
             'code': 0,
             'msg': 'OK',
             'data': {
                 'tasks': tasks,
+                'pages': total_pages,
             },
         }
